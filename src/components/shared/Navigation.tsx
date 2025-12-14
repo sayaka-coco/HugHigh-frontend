@@ -94,9 +94,17 @@ export default function Navigation({ user, activeTab, onTabChange, tabs }: Navig
               {getRoleName(user.role)}
             </span>
             <span className="font-medium text-sm hidden sm:inline">{user.name || user.email}</span>
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-green-400 flex items-center justify-center text-white font-semibold">
-              {getUserInitial(user)}
-            </div>
+            {user.profile_image ? (
+              <img
+                src={user.profile_image}
+                alt="プロフィール"
+                className="w-9 h-9 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-green-400 flex items-center justify-center text-white font-semibold">
+                {getUserInitial(user)}
+              </div>
+            )}
 
             {/* Hamburger Menu Button */}
             <button

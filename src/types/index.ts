@@ -6,6 +6,16 @@ export interface User {
   role: number; // 0: Student, 1: Teacher, 2: Admin
   is_active: boolean;
   created_at: string;
+  // Profile fields
+  profile_image?: string;
+  hobbies?: string;
+  current_focus?: string[];
+}
+
+export interface ProfileUpdateRequest {
+  profile_image?: string;
+  hobbies?: string;
+  current_focus?: string[];
 }
 
 export interface LoginResponse {

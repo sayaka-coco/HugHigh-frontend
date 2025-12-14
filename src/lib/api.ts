@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { LoginRequest, LoginResponse, User } from '@/types';
+import { LoginRequest, LoginResponse, User, ProfileUpdateRequest } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -104,14 +104,36 @@ export const adminAPI = {
 };
 
 // Questionnaire API
+export interface GratitudeTarget {
+  studentId: string;
+  studentName: string;
+  message: string;
+}
+
 export interface QuestionnaireAnswer {
+  // Q1: 計画通りに行動できたか
   q1: number;
-  q2: string;
-  q3: 'あった' | 'なかった';
-  q3_detail: string;
-  q4: 'あった' | 'なかった';
-  q4_detail: string;
-  q5: string;
+  // Q2: 感謝を伝えたい人
+  q2_hasGratitude: boolean;
+  q2_gratitudeTargets?: GratitudeTarget[];
+  // Legacy fields (for backward compatibility)
+  q2_targetStudent: string;
+  q2_targetStudentId: string;
+  q2_message: string;
+  // Q3: インタビュー実施
+  q3_didInterview: boolean;
+  // インタビューを実施したか
+  q3_didConduct: boolean;
+  q3_conductContent: string;
+  q3_couldExtract: boolean | null;
+  q3_extractedInsight: string;
+  q3_extractionChallenge: string;
+  // インタビューを受けたか
+  q3_didReceive: boolean;
+  q3_receiveContent: string;
+  q3_couldSpeak: boolean | null;
+  q3_speakingInsight: string;
+  q3_speakingChallenge: string;
 }
 
 export interface Questionnaire {
@@ -188,6 +210,29 @@ export const monthlyResultAPI = {
     const response = await api.get<MonthlyResult>(`/monthly-results/${id}`);
     return response.data;
   },
+
+  // Get current month result (if finalized)
+  getCurrentMonthResult: async (): Promise<MonthlyResult | null> => {
+    const response = await api.get<MonthlyResult | null>('/monthly-results/current');
+    return response.data;
+  },
+
+  // Finalize and save monthly result
+  finalizeMonthlyResult: async (params: {
+    year?: number;
+    month?: number;
+    humility_score?: number;
+  }): Promise<MonthlyResult> => {
+    const queryParams = new URLSearchParams();
+    if (params.year) queryParams.append('year', params.year.toString());
+    if (params.month) queryParams.append('month', params.month.toString());
+    if (params.humility_score) queryParams.append('humility_score', params.humility_score.toString());
+
+    const response = await api.post<MonthlyResult>(
+      `/monthly-results/finalize?${queryParams.toString()}`
+    );
+    return response.data;
+  },
 };
 
 // Talent Result API
@@ -223,6 +268,67 @@ export const talentResultAPI = {
   // Create or update talent result
   saveTalentResult: async (data: TalentResultCreate): Promise<TalentResult> => {
     const response = await api.post<TalentResult>('/talent-result', data);
+    return response.data;
+  },
+};
+
+// Student API
+export interface Student {
+  id: string;
+  name: string;
+  email: string;
+  class_name?: string;
+}
+
+export const studentAPI = {
+  // Get all students for team member selection
+  getStudents: async (): Promise<Student[]> => {
+    const response = await api.get<Student[]>('/students');
+    return response.data;
+  },
+};
+
+// Humility Evaluation API
+export interface HumilityEvaluationRequest {
+  gratitude_targets: Array<{
+    student_name: string;
+    message: string;
+  }>;
+  weakness: string;
+}
+
+export interface HumilityEvaluationResponse {
+  total_score: number;
+  gratitude_count_score: number;
+  gratitude_content_score: number;
+  weakness_score: number;
+  details: {
+    gratitude_count: number;
+    gratitude_evaluations: Array<{
+      student_name: string;
+      score: number;
+      reason: string;
+    }>;
+    weakness_evaluation: {
+      score: number;
+      reason: string;
+    };
+  };
+}
+
+export const evaluationAPI = {
+  // Evaluate humility skill based on questionnaire and weakness data
+  evaluateHumility: async (request: HumilityEvaluationRequest): Promise<HumilityEvaluationResponse> => {
+    const response = await api.post<HumilityEvaluationResponse>('/evaluate-humility', request);
+    return response.data;
+  },
+};
+
+// Profile API
+export const profileAPI = {
+  // Update user profile
+  updateProfile: async (data: ProfileUpdateRequest): Promise<User> => {
+    const response = await api.put<User>('/profile', data);
     return response.data;
   },
 };

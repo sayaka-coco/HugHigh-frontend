@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import { authAPI, talentResultAPI, TalentResult } from '@/lib/api';
 import { User, UserRole } from '@/types';
 import Navigation from '@/components/shared/Navigation';
-import { Sparkles, Lightbulb, ArrowRight } from 'lucide-react';
+import { Sparkles, Lightbulb, ArrowRight, Home } from 'lucide-react';
 
 export default function TalentPage() {
   const router = useRouter();
@@ -166,8 +166,15 @@ export default function TalentPage() {
               </div>
             </div>
 
-            {/* Re-assess Button */}
-            <div className="flex justify-center">
+            {/* Action Buttons */}
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => router.push('/student/home')}
+                className="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all flex items-center gap-2"
+              >
+                <Home size={20} />
+                ダッシュボードに戻る
+              </button>
               <button
                 onClick={handleReassess}
                 className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
