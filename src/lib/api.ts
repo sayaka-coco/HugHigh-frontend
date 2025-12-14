@@ -324,6 +324,23 @@ export const evaluationAPI = {
   },
 };
 
+// Skill Advice API
+export interface SkillAdviceRequest {
+  skills: { [key: string]: number };
+}
+
+export interface SkillAdviceResponse {
+  advice: { [key: string]: string };
+}
+
+export const skillAdviceAPI = {
+  // Generate personalized advice for skills using AI
+  generateAdvice: async (skills: { [key: string]: number }): Promise<SkillAdviceResponse> => {
+    const response = await api.post<SkillAdviceResponse>('/generate-skill-advice', { skills });
+    return response.data;
+  },
+};
+
 // Profile API
 export const profileAPI = {
   // Update user profile

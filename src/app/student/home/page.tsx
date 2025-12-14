@@ -123,6 +123,59 @@ export default function StudentHomePage() {
     { name: '謙虚である力', score: displaySkills['謙虚である力'] || 0 },
   ];
 
+  // スコアに応じたアドバイスを取得（API不使用・ローカル判定）
+  const getSkillFeedback = (skillName: string, score: number): string => {
+    // スコア0の場合はデータなしメッセージ
+    if (score === 0) {
+      return 'アンケートに回答するとスコアが表示されます。';
+    }
+
+    const feedbackMap: { [key: string]: { high: string; mid: string; low: string } } = {
+      '戦略的計画力': {
+        high: '素晴らしい！計画通りに行動できています。より効率的な時間配分にも挑戦してみましょう。',
+        mid: '計画を意識できています。週の初めに具体的な目標を立てる習慣をつけると、さらに伸びますよ。',
+        low: 'まずは小さな目標から始めてみましょう。達成できたら自分を褒めてあげてください。',
+      },
+      '課題設定・構想力': {
+        high: 'インタビューから深いインサイトを引き出せています！新しい課題発見にも挑戦してみてください。',
+        mid: '課題を見つける力が育っています。「なぜ？」を繰り返すと、より本質的な課題が見えてきます。',
+        low: 'インタビューで「それはなぜですか？」と深掘りする質問を意識してみましょう。',
+      },
+      '巻き込む力': {
+        high: '多くの人と関われています！チームでのプロジェクトにも積極的に挑戦してみましょう。',
+        mid: '周囲との関わりが増えています。インタビューの機会をさらに増やしてみてください。',
+        low: 'まずは身近な人に声をかけてインタビューしてみましょう。新しい発見があるはずです。',
+      },
+      '対話する力': {
+        high: '相手の話を引き出し、自分の考えも伝えられています！この調子で続けましょう。',
+        mid: '対話力が向上しています。相手の言葉を言い換えて確認する習慣をつけてみてください。',
+        low: 'まずは相手の話を最後まで聞くことを意識しましょう。質問は相手が話し終わってからで大丈夫です。',
+      },
+      '実行する力': {
+        high: '計画を着実に実行できています！より挑戦的な目標にもトライしてみましょう。',
+        mid: '行動に移せています。「やることリスト」を作って一つずつ消していくと達成感が得られます。',
+        low: '大きな目標を小さなステップに分けてみましょう。「今日やること」を1つだけ決めてみてください。',
+      },
+      '完遂する力': {
+        high: 'アンケートを欠かさず提出できています！この継続力は大きな強みです。',
+        mid: '継続して取り組めています。リマインダーを設定すると、忘れずに取り組めますよ。',
+        low: 'まずは週1回のアンケート回答を習慣にしましょう。曜日と時間を決めておくと忘れにくくなります。',
+      },
+      '謙虚である力': {
+        high: '感謝の気持ちを素直に伝えられています！その姿勢は周囲にも良い影響を与えています。',
+        mid: '他者への感謝を意識できています。具体的なエピソードを添えると、より気持ちが伝わりますよ。',
+        low: '今週助けてくれた人を思い出してみましょう。「ありがとう」を伝えると関係が深まります。',
+      },
+    };
+
+    const feedback = feedbackMap[skillName];
+    if (!feedback) return '';
+
+    if (score >= 70) return feedback.high;
+    if (score >= 40) return feedback.mid;
+    return feedback.low;
+  };
+
   // Detailed skills data with descriptions (using displaySkills)
   const skillDetails = [
     {
@@ -130,7 +183,7 @@ export default function StudentHomePage() {
       score: displaySkills['戦略的計画力'] || 0,
       maxScore: 100,
       change: 0,
-      description: '目標達成に向けて、効果的な計画を立て、優先順位をつけて行動する力です。',
+      description: getSkillFeedback('戦略的計画力', displaySkills['戦略的計画力'] || 0),
       source: selectedMonthResult ? '確定済み' : 'Q1（計画通りに行動できたか）の評価',
     },
     {
@@ -138,7 +191,7 @@ export default function StudentHomePage() {
       score: displaySkills['課題設定・構想力'] || 0,
       maxScore: 100,
       change: 0,
-      description: '問題を発見し、解決すべき課題を明確にして、ビジョンを描く力です。',
+      description: getSkillFeedback('課題設定・構想力', displaySkills['課題設定・構想力'] || 0),
       source: selectedMonthResult ? '確定済み' : 'インタビューでのインサイト抽出成功率',
     },
     {
@@ -146,7 +199,7 @@ export default function StudentHomePage() {
       score: displaySkills['巻き込む力'] || 0,
       maxScore: 100,
       change: 0,
-      description: '周囲の人を巻き込み、協力を得ながらチームで成果を出す力です。',
+      description: getSkillFeedback('巻き込む力', displaySkills['巻き込む力'] || 0),
       source: selectedMonthResult ? '確定済み' : 'インタビュー実施・参加率',
     },
     {
@@ -154,7 +207,7 @@ export default function StudentHomePage() {
       score: displaySkills['対話する力'] || 0,
       maxScore: 100,
       change: 0,
-      description: '相手の話を傾聴し、自分の考えを適切に伝えるコミュニケーション力です。',
+      description: getSkillFeedback('対話する力', displaySkills['対話する力'] || 0),
       source: selectedMonthResult ? '確定済み' : 'インタビューの質（引き出し・発話成功率）',
     },
     {
@@ -162,7 +215,7 @@ export default function StudentHomePage() {
       score: displaySkills['実行する力'] || 0,
       maxScore: 100,
       change: 0,
-      description: '計画を実際の行動に移し、粘り強く取り組む力です。',
+      description: getSkillFeedback('実行する力', displaySkills['実行する力'] || 0),
       source: selectedMonthResult ? '確定済み' : 'Q1（計画通りに行動できたか）の評価',
     },
     {
@@ -170,7 +223,7 @@ export default function StudentHomePage() {
       score: displaySkills['完遂する力'] || 0,
       maxScore: 100,
       change: 0,
-      description: '困難があっても最後までやり遂げ、成果を出し切る力です。',
+      description: getSkillFeedback('完遂する力', displaySkills['完遂する力'] || 0),
       source: selectedMonthResult ? '確定済み' : 'アンケート完了率',
     },
     {
@@ -178,7 +231,7 @@ export default function StudentHomePage() {
       score: displaySkills['謙虚である力'] || 0,
       maxScore: 100,
       change: 0,
-      description: '自分の弱さを認め、他者から学び、成長し続ける姿勢です。',
+      description: getSkillFeedback('謙虚である力', displaySkills['謙虚である力'] || 0),
       source: selectedMonthResult ? '確定済み' : 'AI評価（感謝メッセージ + 弱みの具体性）',
       isLoading: !selectedMonthResult && isEvaluatingHumility,
     },
@@ -209,12 +262,21 @@ export default function StudentHomePage() {
       const token = Cookies.get('access_token');
 
       if (!token) {
+        setLoading(false);
         router.push('/auth/login');
         return;
       }
 
+      // Set a timeout to prevent infinite loading (5 seconds)
+      const timeoutId = setTimeout(() => {
+        console.error('Request timeout - backend may not be running');
+        setError('サーバーに接続できません。バックエンドが起動しているか確認してください。');
+        setLoading(false);
+      }, 5000);
+
       try {
         const userData = await authAPI.getCurrentUser();
+        clearTimeout(timeoutId);
 
         if (userData.role !== UserRole.Student) {
           if (userData.role === UserRole.Teacher) {
@@ -222,6 +284,7 @@ export default function StudentHomePage() {
           } else {
             setError('アクセス権限がありません');
           }
+          setLoading(false);
           return;
         }
 
@@ -247,9 +310,14 @@ export default function StudentHomePage() {
           }
         }
       } catch (err: any) {
+        clearTimeout(timeoutId);
         console.error('Failed to fetch user:', err);
-        Cookies.remove('access_token');
-        router.push('/auth/login');
+        if (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
+          setError('サーバーに接続できません。バックエンドが起動しているか確認してください。');
+        } else {
+          Cookies.remove('access_token');
+          router.push('/auth/login');
+        }
       } finally {
         setLoading(false);
       }
@@ -433,6 +501,7 @@ export default function StudentHomePage() {
       evaluateHumility();
     }
   }, [questionnaires, latestStrengthWeakness, user]);
+
 
   // Strength/Weakness functions
   const handleSaveStrengthWeakness = () => {
@@ -876,6 +945,7 @@ export default function StudentHomePage() {
                         />
                       </div>
 
+                      {/* スコアに応じたアドバイス表示 */}
                       <p className="text-sm text-gray-600 mb-2">{skill.description}</p>
 
                       {/* スコア算出元を表示 */}
