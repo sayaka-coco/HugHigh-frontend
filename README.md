@@ -7,8 +7,8 @@ Next.js を使用したログイン画面とダッシュボード
 ### 1. リポジトリのクローン（初回のみ）
 
 ```bash
-git clone https://github.com/sayaka-coco/RFP-ask_test-front.git
-cd RFP-ask_test-front
+git clone https://github.com/sayaka-coco/HugHigh-frontend.git
+cd HugHigh-frontend-main
 ```
 
 ### 2. 依存パッケージのインストール
