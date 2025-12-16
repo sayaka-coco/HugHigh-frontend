@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'ASK Login',
-  description: 'Student and Teacher Login System',
+  title: 'HugHigh',
+  description: '高校生向け非認知能力可視化アプリ',
 }
 
 export default function RootLayout({
