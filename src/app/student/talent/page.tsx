@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import { authAPI, talentResultAPI, TalentResult } from '@/lib/api';
 import { User, UserRole } from '@/types';
 import Navigation from '@/components/shared/Navigation';
-import { Sparkles, Lightbulb, ArrowRight, Home } from 'lucide-react';
+import { Sparkles, Lightbulb, ArrowRight, Home, ArrowLeft } from 'lucide-react';
 
 export default function TalentPage() {
   const router = useRouter();
@@ -87,6 +87,13 @@ export default function TalentPage() {
 
       <main className="pt-20 px-6 max-w-5xl mx-auto pb-10">
         <div className="mb-8">
+          <button
+            onClick={() => router.push('/student/home')}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+          >
+            <ArrowLeft size={20} />
+            <span>ダッシュボードに戻る</span>
+          </button>
           <h1 className="text-3xl font-bold mb-2">才能特定</h1>
           <p className="text-gray-600">あなたの才能を発見し、それを活かすためのガイドです。</p>
         </div>

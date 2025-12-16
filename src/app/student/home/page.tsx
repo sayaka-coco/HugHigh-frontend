@@ -69,9 +69,9 @@ export default function StudentHomePage() {
   // Month finalization state
   const [isFinalizingMonth, setIsFinalizingMonth] = useState(false);
 
-  // Selected month for dashboard view (default to December 2024 for demo)
-  const [selectedYear, setSelectedYear] = useState<number>(2024);
-  const [selectedMonth, setSelectedMonth] = useState<number>(12);
+  // Selected month for dashboard view (default to November 2025 for demo)
+  const [selectedYear, setSelectedYear] = useState<number>(2025);
+  const [selectedMonth, setSelectedMonth] = useState<number>(11);
   const [selectedMonthResult, setSelectedMonthResult] = useState<MonthlyResult | null>(null);
 
   const tabs = [
@@ -297,6 +297,14 @@ export default function StudentHomePage() {
         // Fetch monthly results
         const monthlyData = await monthlyResultAPI.getMonthlyResults();
         setMonthlyResults(monthlyData);
+
+        // Set initial selected month result (2025年11月)
+        const initialResult = monthlyData.find(
+          (r: any) => r.year === 2025 && r.month === 11
+        );
+        if (initialResult) {
+          setSelectedMonthResult(initialResult);
+        }
 
         // Load strength/weakness from localStorage
         const savedStrengthWeaknesses = localStorage.getItem(`strengthWeaknesses_${userData.id}`);
@@ -598,8 +606,8 @@ export default function StudentHomePage() {
   };
 
   const handleNextMonth = () => {
-    // デモ用: 2024年12月が最新月
-    const maxYear = 2024;
+    // デモ用: 2025年12月が最新月
+    const maxYear = 2025;
     const maxMonth = 12;
 
     // 最新月より先には進めない
@@ -678,9 +686,9 @@ export default function StudentHomePage() {
                       </h3>
                       <button
                         onClick={handleNextMonth}
-                        disabled={selectedYear === 2024 && selectedMonth >= 12}
+                        disabled={selectedYear === 2025 && selectedMonth >= 12}
                         className={`p-1 rounded-full transition-colors ${
-                          selectedYear === 2024 && selectedMonth >= 12
+                          selectedYear === 2025 && selectedMonth >= 12
                             ? 'text-gray-300 cursor-not-allowed'
                             : 'hover:bg-gray-100 text-gray-600'
                         }`}
@@ -783,12 +791,21 @@ export default function StudentHomePage() {
                   );
                 } else if (pendingQuestionnaire) {
                   return (
-                    <StatCard
-                      label="次回アンケート"
-                      value={`第${pendingQuestionnaire.week}週`}
-                      change="未回答"
-                      changeType="negative"
-                    />
+                    <div
+                      className="card p-4 cursor-pointer hover:shadow-lg transition-shadow border-2 border-blue-200 bg-blue-50"
+                      onClick={() => {
+                        setSelectedQuestionnaire(pendingQuestionnaire);
+                        setShowQuestionnaireForm(true);
+                        setActiveTab('questionnaire');
+                      }}
+                    >
+                      <p className="text-sm text-gray-600 mb-1">次回アンケート</p>
+                      <p className="text-2xl font-bold text-gray-900">{`第${pendingQuestionnaire.week}週`}</p>
+                      <p className="text-sm text-red-600 font-medium">未回答</p>
+                      <button className="mt-2 w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                        回答する
+                      </button>
+                    </div>
                   );
                 } else {
                   return (
@@ -1181,48 +1198,86 @@ export default function StudentHomePage() {
               <>
                 <h2 className="text-2xl font-bold mb-6">アンケート一覧</h2>
                 <div className="card">
-                  <div className="space-y-3">
-                    {questionnaires.map((q) => {
-                      const deadline = new Date(q.deadline);
-                      const now = new Date();
-                      const isBeforeDeadline = now < deadline;
-                      const canEdit = q.status === 'completed' && isBeforeDeadline;
-
-                      return (
-                        <div
-                          key={q.id}
-                          className="flex items-center justify-between p-5 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors"
-                          onClick={() => {
-                            setSelectedQuestionnaire(q);
-                            // 回答済みの場合は詳細表示、未回答の場合はフォーム表示
-                            if (q.status === 'completed') {
-                              setShowQuestionnaireDetail(true);
-                            } else {
-                              setShowQuestionnaireForm(true);
-                            }
-                          }}
-                        >
-                          <div className="flex-1">
-                            <h4 className="font-semibold mb-1">{q.title}</h4>
-                            <p className="text-sm text-gray-600">
-                              締切: {deadline.toLocaleDateString('ja-JP')} {deadline.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
-                            </p>
-                            {canEdit && (
-                              <p className="text-xs text-blue-600 mt-1">期限前のため編集可能</p>
-                            )}
-                          </div>
-                          <span
-                            className={`px-3 py-1.5 rounded-full text-sm font-medium ${
-                              q.status === 'completed'
-                                ? 'bg-green-100 text-green-900'
-                                : 'bg-yellow-100 text-yellow-900'
-                            }`}
-                          >
-                            {q.status === 'completed' ? '回答済み' : '未回答'}
-                          </span>
-                        </div>
+                  <div className="space-y-4">
+                    {(() => {
+                      // Sort questionnaires by deadline (newest first) and group by month
+                      const sortedQuestionnaires = [...questionnaires].sort((a, b) =>
+                        new Date(b.deadline).getTime() - new Date(a.deadline).getTime()
                       );
-                    })}
+
+                      // Group by year-month
+                      const grouped: { [key: string]: typeof questionnaires } = {};
+                      sortedQuestionnaires.forEach((q) => {
+                        const deadline = new Date(q.deadline);
+                        const key = `${deadline.getFullYear()}-${String(deadline.getMonth() + 1).padStart(2, '0')}`;
+                        if (!grouped[key]) {
+                          grouped[key] = [];
+                        }
+                        grouped[key].push(q);
+                      });
+
+                      // Sort within each month by week number (ascending)
+                      Object.keys(grouped).forEach((key) => {
+                        grouped[key].sort((a, b) => a.week - b.week);
+                      });
+
+                      // Sort keys (newest month first)
+                      const sortedKeys = Object.keys(grouped).sort().reverse();
+
+                      return sortedKeys.map((monthKey) => {
+                        const [year, month] = monthKey.split('-');
+                        const monthLabel = `${year}年${parseInt(month)}月`;
+
+                        return (
+                          <div key={monthKey}>
+                            <h3 className="text-lg font-semibold text-gray-700 mb-3 border-b pb-2">{monthLabel}</h3>
+                            <div className="space-y-3 mb-4">
+                              {grouped[monthKey].map((q) => {
+                                const deadline = new Date(q.deadline);
+                                const now = new Date();
+                                const isBeforeDeadline = now < deadline;
+                                const canEdit = q.status === 'completed' && isBeforeDeadline;
+
+                                return (
+                                  <div
+                                    key={q.id}
+                                    className="flex items-center justify-between p-5 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors"
+                                    onClick={() => {
+                                      setSelectedQuestionnaire(q);
+                                      // 回答済みの場合は詳細表示、未回答の場合はフォーム表示
+                                      if (q.status === 'completed') {
+                                        setShowQuestionnaireDetail(true);
+                                      } else {
+                                        setShowQuestionnaireForm(true);
+                                      }
+                                    }}
+                                  >
+                                    <div className="flex-1">
+                                      <h4 className="font-semibold mb-1">{q.title}</h4>
+                                      <p className="text-sm text-gray-600">
+                                        締切: {deadline.toLocaleDateString('ja-JP')} {deadline.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
+                                      </p>
+                                      {canEdit && (
+                                        <p className="text-xs text-blue-600 mt-1">期限前のため編集可能</p>
+                                      )}
+                                    </div>
+                                    <span
+                                      className={`px-3 py-1.5 rounded-full text-sm font-medium ${
+                                        q.status === 'completed'
+                                          ? 'bg-green-100 text-green-900'
+                                          : 'bg-yellow-100 text-yellow-900'
+                                      }`}
+                                    >
+                                      {q.status === 'completed' ? '回答済み' : '未回答'}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
                 </div>
               </>
