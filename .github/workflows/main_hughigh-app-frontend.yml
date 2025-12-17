@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_API_URL: "https://hughigh-app-backend.azurewebsites.net"
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: "225318683578-keo1fqtk4qstrv37pc1r3qqlo66qgco6.apps.googleusercontent.com"
     steps:
       - uses: actions/checkout@v4
 
@@ -64,3 +65,4 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7DA18C2283B74069922E26AE4EA70992 }}
+
