@@ -91,7 +91,7 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
         <div className="bg-white p-12 rounded-3xl shadow-2xl text-center max-w-md w-full mx-5 animate-in">
           <div className="w-20 h-20 bg-gradient-to-br from-indigo-600 to-indigo-400 rounded-2xl mx-auto mb-6 flex items-center justify-center text-white text-4xl font-bold">
-            N
+            H
           </div>
           <h1 className="text-3xl font-bold mb-2">HugHigh</h1>
           <p className="text-gray-600 mb-8">高校生向け非認知能力可視化アプリ</p>
