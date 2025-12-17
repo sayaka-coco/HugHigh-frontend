@@ -2,10 +2,8 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { LoginRequest, LoginResponse, User, ProfileUpdateRequest } from '@/types';
 
-// Production URL when deployed to Azure, otherwise use environment variable or localhost
-const API_URL = typeof window !== 'undefined' && window.location.hostname.includes('azurewebsites.net')
-  ? 'https://hughigh-app-backend.azurewebsites.net'
-  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000');
+// API URL configuration
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://hughigh-app-backend.azurewebsites.net';
 
 const api = axios.create({
   baseURL: API_URL,
